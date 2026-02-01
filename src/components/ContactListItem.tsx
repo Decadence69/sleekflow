@@ -16,15 +16,15 @@ export default function ContactListItem({ character }: ContactListItemProps) {
           </div>
           <div>
             {/* <span className="text-sm font-semibold text-gray-600">Status:</span> */}
-            <p className="text-gray-900">{character.status}</p>
+            <p className="text-gray-900">{character.status.charAt(0).toUpperCase() + character.status.slice(1)}</p>
           </div>
           <div>
             {/* <span className="text-sm font-semibold text-gray-600">Species:</span> */}
-            <p className="text-gray-900">{character.species}</p>
+            <p className="text-gray-900">{character.species.charAt(0).toUpperCase() + character.species.slice(1)}</p>
           </div>
           <div>
             {/* <span className="text-sm font-semibold text-gray-600">Gender:</span> */}
-            <p className="text-gray-900">{character.gender}</p>
+            <p className="text-gray-900">{character.gender.charAt(0).toUpperCase() + character.gender.slice(1)}</p>
           </div>
         </div>
       </Link>
