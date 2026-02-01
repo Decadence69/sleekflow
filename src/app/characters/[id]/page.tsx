@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Character, Episode } from "@/types/character";
+import { Metadata } from "next";
 
 async function getCharacter(id: string): Promise<Character> {
   const res = await fetch(`https://rickandmortyapi.com/api/character/${id}`, {
@@ -22,6 +23,25 @@ async function getEpisodes(urls: string[]): Promise<Episode[]> {
   return episodes;
 }
 
+// Generate metadata for the page
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const character = await getCharacter(params.id);
+
+  return {
+    title: `${character.name} | SleekFlow`,
+    description: `View information about ${character.name}`,
+    openGraph: {
+      title: character.name,
+      description: `${character.status} ${character.species}`,
+      images: [character.image],
+    },
+  };
+}
+
 export async function generateStaticParams() {
   const res = await fetch("https://rickandmortyapi.com/api/character");
   const data = await res.json();
@@ -40,19 +60,19 @@ export default async function CharacterProfile({
   const episodes = await getEpisodes(character.episode);
 
   return (
-    <div className="min-h-screen">
-      {/* Header - Full Width */}
-      <div className="top-0 z-10 bg-gray-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+    <>
+      {/* Sticky Header - Full Width across entire viewport */}
+      <div className="sticky top-0 z-10 bg-white shadow-md w-full">
+        <div className="px-8 py-4">
           <div className="flex items-center gap-6">
             <Image
               src={character.image}
               alt={character.name}
-              width={120}
-              height={120}
+              width={80}
+              height={80}
               className="rounded-full shadow-lg"
             />
-            <h1 className="text-3xl font-bold text-gray-200">
+            <h1 className="text-3xl font-bold text-gray-900">
               {character.name}
             </h1>
           </div>
@@ -70,7 +90,7 @@ export default async function CharacterProfile({
         </Link>
 
         {/* Personal Info Card */}
-        <div className="bg-gray-50 rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Personal Info
           </h2>
@@ -103,7 +123,7 @@ export default async function CharacterProfile({
         </div>
 
         {/* Episodes Section */}
-        <div className="bg-gray-50 rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <h2 className="text-2xl font-bold text-gray-900 px-6 py-4 border-b border-gray-200">
             Episodes
           </h2>
@@ -133,6 +153,6 @@ export default async function CharacterProfile({
           </ul>
         </div>
       </div>
-    </div>
+    </>
   );
 }

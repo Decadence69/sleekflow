@@ -1,29 +1,39 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import ContactListItem from '@/components/ContactListItem';
-import { ApiResponse, Character } from '@/types/character';
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import ContactListItem from "@/components/ContactListItem";
+import { ApiResponse, Character } from "@/types/character";
 
 export default function ContactList() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [characters, setCharacters] = useState<Character[]>([]);
   const [filteredCharacters, setFilteredCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'));
+  const [currentPage, setCurrentPage] = useState(
+    parseInt(searchParams.get("page") || "1"),
+  );
   const [totalPages, setTotalPages] = useState(1);
-  const [info, setInfo] = useState<ApiResponse['info'] | null>(null);
-  
+  const [info, setInfo] = useState<ApiResponse["info"] | null>(null);
+
   // Dynamic filter options
   const [allSpecies, setAllSpecies] = useState<string[]>([]);
-  
+
   // Get initial values from URL
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
-  const [speciesFilter, setSpeciesFilter] = useState(searchParams.get('species') || '');
-  const [genderFilter, setGenderFilter] = useState(searchParams.get('gender') || '');
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || "",
+  );
+  const [statusFilter, setStatusFilter] = useState(
+    searchParams.get("status") || "",
+  );
+  const [speciesFilter, setSpeciesFilter] = useState(
+    searchParams.get("species") || "",
+  );
+  const [genderFilter, setGenderFilter] = useState(
+    searchParams.get("gender") || "",
+  );
 
   // Fetch all species options once on mount
   useEffect(() => {
@@ -34,22 +44,33 @@ export default function ContactList() {
         let hasMore = true;
 
         // Fetch all pages to get all unique species
-        while (hasMore && page <= 10) { // Limit to 10 pages to avoid too many requests
-          const res = await fetch(`https://rickandmortyapi.com/api/character?page=${page}`);
+        while (hasMore && page <= 10) {
+          // Limit to 10 pages to avoid too many requests
+          const res = await fetch(
+            `https://rickandmortyapi.com/api/character?page=${page}`,
+          );
           if (!res.ok) break;
-          
+
           const data: ApiResponse = await res.json();
-          data.results.forEach(char => speciesSet.add(char.species));
-          
+          data.results.forEach((char) => speciesSet.add(char.species));
+
           hasMore = data.info.next !== null;
           page++;
         }
 
         setAllSpecies(Array.from(speciesSet).sort());
       } catch (error) {
-        console.error('Failed to fetch species:', error);
+        console.error("Failed to fetch species:", error);
         // Fallback to common species if fetch fails
-        setAllSpecies(['Human', 'Alien', 'Humanoid', 'Robot', 'Cronenberg', 'Disease', 'Animal']);
+        setAllSpecies([
+          "Human",
+          "Alien",
+          "Humanoid",
+          "Robot",
+          "Cronenberg",
+          "Disease",
+          "Animal",
+        ]);
       }
     }
     fetchAllSpecies();
@@ -62,14 +83,16 @@ export default function ContactList() {
       try {
         // Build query parameters for API
         const params = new URLSearchParams();
-        params.set('page', currentPage.toString());
-        if (searchTerm) params.set('name', searchTerm);
-        if (statusFilter) params.set('status', statusFilter);
-        if (speciesFilter) params.set('species', speciesFilter);
-        if (genderFilter) params.set('gender', genderFilter);
+        params.set("page", currentPage.toString());
+        if (searchTerm) params.set("name", searchTerm);
+        if (statusFilter) params.set("status", statusFilter);
+        if (speciesFilter) params.set("species", speciesFilter);
+        if (genderFilter) params.set("gender", genderFilter);
 
-        const res = await fetch(`https://rickandmortyapi.com/api/character?${params.toString()}`);
-        
+        const res = await fetch(
+          `https://rickandmortyapi.com/api/character?${params.toString()}`,
+        );
+
         if (!res.ok) {
           // API returns 404 when no results match filters
           setCharacters([]);
@@ -84,7 +107,7 @@ export default function ContactList() {
         setInfo(data.info);
         setTotalPages(data.info.pages);
       } catch (error) {
-        console.error('Failed to fetch characters:', error);
+        console.error("Failed to fetch characters:", error);
         setCharacters([]);
         setFilteredCharacters([]);
       } finally {
@@ -97,39 +120,46 @@ export default function ContactList() {
   // Update URL when filters or page changes
   useEffect(() => {
     const params = new URLSearchParams();
-    if (currentPage > 1) params.set('page', currentPage.toString());
-    if (searchTerm) params.set('search', searchTerm);
-    if (statusFilter) params.set('status', statusFilter);
-    if (speciesFilter) params.set('species', speciesFilter);
-    if (genderFilter) params.set('gender', genderFilter);
+    if (currentPage > 1) params.set("page", currentPage.toString());
+    if (searchTerm) params.set("search", searchTerm);
+    if (statusFilter) params.set("status", statusFilter);
+    if (speciesFilter) params.set("species", speciesFilter);
+    if (genderFilter) params.set("gender", genderFilter);
 
-    const newUrl = params.toString() ? `?${params.toString()}` : '/';
+    const newUrl = params.toString() ? `?${params.toString()}` : "/";
     router.replace(newUrl, { scroll: false });
-  }, [currentPage, searchTerm, statusFilter, speciesFilter, genderFilter, router]);
+  }, [
+    currentPage,
+    searchTerm,
+    statusFilter,
+    speciesFilter,
+    genderFilter,
+    router,
+  ]);
 
   // Predefined filter options
-  const statuses = ['Alive', 'Dead', 'Unknown'];
-  const genders = ['Male', 'Female', 'Genderless', 'Unknown'];
+  const statuses = ["Alive", "Dead", "Unknown"];
+  const genders = ["Male", "Female", "Genderless", "Unknown"];
 
   const clearFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('');
-    setSpeciesFilter('');
-    setGenderFilter('');
+    setSearchTerm("");
+    setStatusFilter("");
+    setSpeciesFilter("");
+    setGenderFilter("");
     setCurrentPage(1);
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCurrentPage((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setCurrentPage((prev) => prev - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -143,8 +173,8 @@ export default function ContactList() {
         <h2 className="text-3xl font-bold text-gray-400 mb-2">Contact List</h2>
         <p className="text-gray-400">
           {info && `Total Characters: ${info.count} | `}
-          Showing: {filteredCharacters.length} | 
-          Page {currentPage} of {totalPages}
+          Showing: {filteredCharacters.length} | Page {currentPage} of{" "}
+          {totalPages}
         </p>
       </div>
 
@@ -166,7 +196,7 @@ export default function ContactList() {
       <div className="bg-gray-50 rounded-lg shadow-md p-4 mb-6">
         <div className="flex items-center gap-4 flex-wrap">
           <h3 className="font-semibold text-gray-700">Filters:</h3>
-          
+
           <select
             value={statusFilter}
             onChange={(e) => {
@@ -250,33 +280,92 @@ export default function ContactList() {
       </div>
 
       {/* Pagination Controls */}
-      <div className="mt-6 flex items-center justify-between">
+      {/* Pagination Controls */}
+      <div className="mt-6 flex items-center justify-center gap-2">
         <button
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             currentPage === 1
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
-          Previous Page
+          Previous
         </button>
 
-        <span className="text-gray-600 font-medium">
-          Page {currentPage} of {totalPages}
-        </span>
+        {/* Page Numbers */}
+        <div className="flex gap-1">
+          {/* First page */}
+          {currentPage > 3 && (
+            <>
+              <button
+                onClick={() => {
+                  setCurrentPage(1);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="px-3 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                1
+              </button>
+              {currentPage > 4 && (
+                <span className="px-3 py-2 text-gray-500">...</span>
+              )}
+            </>
+          )}
+
+          {/* Pages around current page */}
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => {
+              // Show current page and 2 pages before and after
+              return page >= currentPage - 2 && page <= currentPage + 2;
+            })
+            .map((page) => (
+              <button
+                key={page}
+                onClick={() => {
+                  setCurrentPage(page);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                  page === currentPage
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+          {/* Last page */}
+          {currentPage < totalPages - 2 && (
+            <>
+              {currentPage < totalPages - 3 && (
+                <span className="px-3 py-2 text-gray-500">...</span>
+              )}
+              <button
+                onClick={() => {
+                  setCurrentPage(totalPages);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="px-3 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                {totalPages}
+              </button>
+            </>
+          )}
+        </div>
 
         <button
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             currentPage === totalPages
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
-          Next Page
+          Next
         </button>
       </div>
     </div>

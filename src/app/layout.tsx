@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: 'Contact List - SleekFlow',
-  description: 'A contact list featuring characters from Rick and Morty',
+  description: 'View our list of contacts with their related information.',
 }
 
 export default function RootLayout({
