@@ -53,13 +53,3 @@
 - According to the documentation, Rick and Morty API already supports filtering, so I opted to use it instead
 
 **My Rewrite**: Pass filter parameters directly to the API, letting the server handle the heavy lifting.
-
-### Dynamic vs. Predefined Filters
-**AI Suggestion**: Generate all filter dropdown options dynamically from fetched data.
-
-**Why I Rejected It**: 
-- I
-- Required fetching all data first to build the filters
-- Less user-friendly with too many options
-
-**My Rewrite**: Curated, practical filter lists that cover the main use cases.
